@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b1739" />
+    <meta name="description" content="KI-Use-Cases für KMUs erfassen, bewerten und demonstrieren." />
+    <meta property="og:title" content="KMU AI Use Case Hub" />
+    <meta property="og:description" content="KI-Ideen bewerten. Demos ausprobieren. Wirkung messen." />
+    <meta property="og:image" content="https://bernhardmayr.github.io/kmu-ai-usecase-hub/og.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <title>KMU AI Use Case Hub</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Hauptnavigation">
+        <div class="brand">
+          <div class="brand-mark">AI</div>
+          <div><strong>Use Case Hub</strong><span>für KMUs</span></div>
+        </div>
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="dashboard"><span>⌂</span>Dashboard</button>
+          <button class="nav-item" data-view="cases"><span>◇</span>Use Cases</button>
+          <button class="nav-item" data-view="matrix"><span>⌗</span>Priorisierung</button>
+          <button class="nav-item" data-view="demos"><span>▶</span>Demo-Labor</button>
+        </nav>
+        <div class="sidebar-note">
+          <span class="pulse"></span>
+          <div><strong>Demo-Modus</strong><small>Keine echten Aktionen</small></div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">KI-Portfolio</p>
+            <h1 id="pageTitle">Dashboard</h1>
+          </div>
+          <div class="top-actions">
+            <button id="exportBtn" class="icon-btn" title="Daten exportieren" aria-label="Daten exportieren">⇩</button>
+            <button id="newCaseBtn" class="primary-btn"><span>＋</span> Neuer Use Case</button>
+          </div>
+        </header>
+
+        <section id="dashboardView" class="view active-view">
+          <div class="hero-card">
+            <div>
+              <span class="hero-label">PORTFOLIO-ÜBERBLICK</span>
+              <h2>Von der KI-Idee zum messbaren Nutzen.</h2>
+              <p>Use Cases strukturiert erfassen, transparent bewerten und sofort mit sicheren Beispieldaten testen.</p>
+            </div>
+            <button class="secondary-btn" data-go="cases">Portfolio ansehen <span>→</span></button>
+          </div>
+
+          <div id="statsGrid" class="stats-grid"></div>
+
+          <div class="dashboard-grid">
+            <article class="panel wide-panel">
+              <div class="panel-head"><div><span class="section-kicker">PRIORITÄTEN</span><h3>Attraktivste Use Cases</h3></div><button class="text-btn" data-go="matrix">Matrix öffnen</button></div>
+              <div id="topCases" class="top-cases"></div>
+            </article>
+            <article class="panel">
+              <div class="panel-head"><div><span class="section-kicker">STATUS</span><h3>Portfolio-Verteilung</h3></div></div>
+              <div id="statusChart" class="status-chart"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="casesView" class="view">
+          <div class="toolbar panel">
+            <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Use Cases durchsuchen …" /></label>
+            <select id="areaFilter" aria-label="Bereich filtern"><option value="all">Alle Bereiche</option></select>
+            <select id="statusFilter" aria-label="Status filtern"><option value="all">Alle Status</option></select>
+          </div>
+          <div id="caseGrid" class="case-grid"></div>
+        </section>
+
+        <section id="matrixView" class="view">
+          <div class="matrix-intro panel">
+            <div><span class="section-kicker">NUTZEN × MACHBARKEIT</span><h2>Portfolio-Priorisierung</h2><p>Die Position basiert auf Business Value und technischer Machbarkeit.</p></div>
+            <div class="legend"><span><i class="dot quick"></i>Quick Win</span><span><i class="dot strategic"></i>Strategisch</span><span><i class="dot later"></i>Später prüfen</span></div>
+          </div>
+          <div class="matrix-wrap panel">
+            <div class="axis-label y-axis">Business Value →</div>
+            <div id="priorityMatrix" class="priority-matrix">
+              <div class="quadrant q-top-left"><strong>Strategisch</strong><span>Hoher Nutzen, anspruchsvoll</span></div>
+              <div class="quadrant q-top-right"><strong>Quick Wins</strong><span>Sofort starten</span></div>
+              <div class="quadrant q-bottom-left"><strong>Nicht empfohlen</strong><span>Nutzen und Machbarkeit gering</span></div>
+              <div class="quadrant q-bottom-right"><strong>Später prüfen</strong><span>Einfach, aber geringer Nutzen</span></div>
+              <div id="matrixDots"></div>
+            </div>
+            <div class="axis-label x-axis">Technische Machbarkeit →</div>
+          </div>
+        </section>
+
+        <section id="demosView" class="view">
+          <div class="demo-intro">
+            <span class="section-kicker">SICHER AUSPROBIEREN</span>
+            <h2>Demo-Labor</h2>
+            <p>Alle Abläufe arbeiten mit Beispieldaten und lösen keine realen Geschäftsprozesse aus.</p>
+          </div>
+          <div id="demoGrid" class="demo-grid"></div>
+        </section>
+      </main>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Mobile Navigation">
+      <button class="mobile-nav-item active" data-view="dashboard"><span>⌂</span>Start</button>
+      <button class="mobile-nav-item" data-view="cases"><span>◇</span>Cases</button>
+      <button class="mobile-nav-item" data-view="matrix"><span>⌗</span>Matrix</button>
+      <button class="mobile-nav-item" data-view="demos"><span>▶</span>Demos</button>
+    </nav>
+
+    <dialog id="caseDialog" class="modal">
+      <div class="modal-head"><div><span class="section-kicker">AI CANVAS</span><h2 id="dialogTitle">Use Case</h2></div><button class="close-btn" data-close="caseDialog" aria-label="Schließen">×</button></div>
+      <div id="canvasContent" class="canvas-grid"></div>
+      <div class="modal-actions"><button class="secondary-btn" data-close="caseDialog">Schließen</button><button id="dialogDemoBtn" class="primary-btn">Demo ausführen</button></div>
+    </dialog>
+
+    <dialog id="newCaseDialog" class="modal form-modal">
+      <div class="modal-head"><div><span class="section-kicker">NEUER EINTRAG</span><h2>Use Case anlegen</h2></div><button class="close-btn" data-close="newCaseDialog" aria-label="Schließen">×</button></div>
+      <form id="newCaseForm" class="case-form">
+        <label class="full">Titel<input name="title" required placeholder="z. B. Angebote automatisch prüfen" /></label>
+        <label>Bereich<select name="area"><option>Finanzen</option><option>Vertrieb</option><option>Kundenservice</option><option>Personal</option><option>Einkauf</option><option>Produktion</option><option>Logistik</option><option>IT</option></select></label>
+        <label>Status<select name="status"><option>Idee</option><option>In Bewertung</option><option>Demo verfügbar</option><option>Pilot</option></select></label>
+        <label class="full">Problem<textarea name="description" required placeholder="Welches Problem wird gelöst?"></textarea></label>
+        <label class="full">AI Output<textarea name="aiOutput" required placeholder="Welches Ergebnis liefert die KI?"></textarea></label>
+        <label class="full">Aktion<textarea name="action" required placeholder="Was geschieht mit dem Ergebnis?"></textarea></label>
+        <label class="full">Erwarteter Nutzen<textarea name="impact" required placeholder="Zeit, Kosten, Qualität oder Umsatz"></textarea></label>
+        <label>Business Value <output id="valueOutput">3</output><input id="valueRange" name="value" type="range" min="1" max="5" value="3" /></label>
+        <label>Machbarkeit <output id="feasibilityOutput">3</output><input id="feasibilityRange" name="feasibility" type="range" min="1" max="5" value="3" /></label>
+        <div class="modal-actions full"><button type="button" class="secondary-btn" data-close="newCaseDialog">Abbrechen</button><button type="submit" class="primary-btn">Use Case speichern</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="demoDialog" class="modal demo-modal">
+      <div class="modal-head"><div><span class="section-kicker">INTERAKTIVE DEMO</span><h2 id="demoTitle">Demo</h2></div><button class="close-btn" data-close="demoDialog" aria-label="Schließen">×</button></div>
+      <div class="demo-workbench">
+        <section><label class="input-label" for="demoInput">Beispieleingabe</label><textarea id="demoInput"></textarea><button id="runDemoBtn" class="primary-btn run-btn"><span>▶</span> Beispiel ausführen</button></section>
+        <section class="result-side"><div class="result-head"><span>KI-Ergebnis</span><span id="confidenceBadge" class="confidence">Bereit</span></div><div id="demoResult" class="demo-result empty-result">Starte die Demo, um das Ergebnis zu sehen.</div><div id="processSteps" class="process-steps"></div></section>
+      </div>
+      <div id="feedbackBar" class="feedback-bar hidden"><span>War das Ergebnis hilfreich?</span><button data-feedback="yes">✓ Ja</button><button data-feedback="no">× Nein</button></div>
+    </dialog>
+
+    <div id="toast" class="toast" role="status"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>
