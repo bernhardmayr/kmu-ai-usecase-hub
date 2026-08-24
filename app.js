@@ -53,6 +53,8 @@ const seedCases = [
 
 let cases = loadCases();
 let currentCase = null;
+let currentAttachments = [];
+let preparedPrompt = "";
 
 function loadCases() {
   try {
@@ -150,7 +152,9 @@ function openDemo(id) {
   if (document.getElementById("caseDialog").open) document.getElementById("caseDialog").close();
   document.getElementById("demoTitle").textContent = item.title;
   document.getElementById("demoInput").value = item.sampleInput || item.description;
-  document.getElementById("demoResult").textContent = "Starte die Demo, um das Ergebnis zu sehen.";
+  currentAttachments.forEach(item => item.previewUrl && URL.revokeObjectURL(item.previewUrl));
+  currentAttachments = []; preparedPrompt = ""; renderAttachments();
+  document.getElementById("demoResult").textContent = "Ergänze bei Bedarf Text, Foto oder Datei und öffne anschließend ChatGPT.";
   document.getElementById("demoResult").className = "demo-result empty-result";
   document.getElementById("confidenceBadge").textContent = "Bereit";
   document.getElementById("confidenceBadge").className = "confidence";
@@ -159,24 +163,67 @@ function openDemo(id) {
   document.getElementById("demoDialog").showModal();
 }
 
-async function runDemo() {
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function renderAttachments() {
+  const list = document.getElementById("attachmentList");
+  list.innerHTML = currentAttachments.map((item, index) => `<div class="attachment-item">${item.previewUrl ? `<img class="attachment-thumb" src="${item.previewUrl}" alt="Vorschau" />` : `<span class="attachment-thumb">${esc((item.file.name.split(".").pop() || "DATEI").slice(0, 5).toUpperCase())}</span>`}<span class="attachment-meta"><strong>${esc(item.file.name)}</strong><small>${formatBytes(item.file.size)}${item.textContent ? " · Text wird übernommen" : " · im Chat anhängen"}</small></span><button class="remove-attachment" data-remove-attachment="${index}" aria-label="Datei entfernen">×</button></div>`).join("");
+}
+
+async function addAttachments(fileList) {
+  for (const file of Array.from(fileList || [])) {
+    if (currentAttachments.some(item => item.file.name === file.name && item.file.size === file.size)) continue;
+    const isText = file.type.startsWith("text/") || /\.(txt|csv)$/i.test(file.name);
+    const textContent = isText && file.size <= 200000 ? await file.text() : "";
+    currentAttachments.push({ file, textContent, previewUrl: file.type.startsWith("image/") ? URL.createObjectURL(file) : "" });
+  }
+  renderAttachments();
+}
+
+function buildChatPrompt() {
+  const input = document.getElementById("demoInput").value.trim();
+  const listedFiles = currentAttachments.map(item => `- ${item.file.name} (${item.file.type || "Datei"})`).join("\n");
+  const textFiles = currentAttachments.filter(item => item.textContent).map(item => `\n--- Inhalt aus ${item.file.name} ---\n${item.textContent.slice(0, 100000)}`).join("\n");
+  return `Du bist ein praxisorientierter KI-Assistent für kleine und mittlere Unternehmen. Führe den folgenden Use Case exemplarisch aus. Antworte auf Deutsch, strukturiert, konkret und ohne Informationen zu erfinden. Kennzeichne Unsicherheiten und nenne am Ende die empfohlene nächste Aktion.\n\nUSE CASE\nTitel: ${currentCase.title}\nZiel/AI Output: ${currentCase.aiOutput}\nGewünschte Aktion: ${currentCase.action}\nErwarteter Nutzen: ${currentCase.impact}\nZu beachtende Risiken: ${currentCase.risks}\n\nEINGABE\n${input}\n${listedFiles ? `\nBEIGEFÜGTE DATEIEN (werden separat im Chat angehängt)\n${listedFiles}` : ""}${textFiles}`;
+}
+
+function copyPreparedPrompt() {
+  if (!preparedPrompt) preparedPrompt = buildChatPrompt();
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(preparedPrompt).then(() => toast("Prompt wurde kopiert.")).catch(() => toast("Bitte Prompt im Übergabefeld kopieren."));
+  else toast("Kopieren wird von diesem Browser nicht unterstützt.");
+}
+
+function runDemo() {
   if (!currentCase) return;
   const button = document.getElementById("runDemoBtn"), result = document.getElementById("demoResult"), stepsEl = document.getElementById("processSteps");
   if (!document.getElementById("demoInput").value.trim()) return toast("Bitte zuerst eine Beispieleingabe ergänzen.");
-  button.disabled = true; button.textContent = "Analyse läuft …";
-  result.className = "demo-result empty-result"; result.textContent = "Die Beispieldaten werden verarbeitet …";
-  const steps = ["Eingabe validieren", "Inhalte analysieren", "Ergebnis strukturieren", "Aktion ableiten"];
-  stepsEl.innerHTML = steps.map((step, i) => `<div class="process-step" id="step-${i}"><span>${step}</span><span>○</span></div>`).join("");
-  for (let i = 0; i < steps.length; i += 1) {
-    await new Promise(resolve => setTimeout(resolve, 260));
-    const step = document.getElementById(`step-${i}`); step.classList.add("done"); step.lastElementChild.textContent = "✓";
-  }
+  preparedPrompt = buildChatPrompt();
+  const needsManualAttachments = currentAttachments.some(item => !item.textContent);
+  const canPrefill = preparedPrompt.length < 5500;
+  const chatUrl = canPrefill ? `https://chatgpt.com/?q=${encodeURIComponent(preparedPrompt)}` : "https://chatgpt.com/";
+  const chatWindow = window.open(chatUrl, "_blank", "noopener,noreferrer");
+  copyPreparedPrompt();
   result.className = "demo-result";
-  result.textContent = currentCase.sampleOutput || `Beispielanalyse abgeschlossen.\n\nErkanntes Ziel: ${currentCase.aiOutput}\n\nEmpfohlene Aktion: ${currentCase.action}`;
-  document.getElementById("confidenceBadge").textContent = "91 % Sicherheit";
+  result.textContent = `${chatWindow ? "✓ ChatGPT wurde geöffnet." : "Der Browser hat das neue Fenster blockiert. Öffne ChatGPT manuell."}\n\n✓ Der vollständige Prompt wurde in die Zwischenablage kopiert.${needsManualAttachments ? "\n\nWichtig: Füge die angezeigten Bilder, PDFs oder Office-Dateien im Chat über ＋ hinzu." : ""}${canPrefill ? "\n\nDer Prompt wurde zusätzlich an ChatGPT übergeben. Prüfe ihn dort und sende ihn ab." : "\n\nFüge den kopierten Prompt in ChatGPT ein und sende ihn ab."}`;
+  document.getElementById("confidenceBadge").textContent = "Übergeben";
   document.getElementById("confidenceBadge").className = "confidence success";
   document.getElementById("feedbackBar").classList.remove("hidden");
-  button.disabled = false; button.innerHTML = "<span>↻</span> Erneut ausführen";
+  stepsEl.innerHTML = "";
+  button.innerHTML = "<span>↗</span> ChatGPT erneut öffnen";
+}
+
+async function sharePreparedPrompt() {
+  if (!preparedPrompt) preparedPrompt = buildChatPrompt();
+  const files = currentAttachments.map(item => item.file);
+  try {
+    if (navigator.share && (!files.length || !navigator.canShare || navigator.canShare({ files }))) {
+      await navigator.share({ title: currentCase?.title || "KI Use Case", text: preparedPrompt, files });
+    } else copyPreparedPrompt();
+  } catch (error) { if (error.name !== "AbortError") copyPreparedPrompt(); }
 }
 
 function addCase(event) {
@@ -203,6 +250,11 @@ function renderAll() { renderStats(); renderTopCases(); renderStatus(); renderCa
 
 document.addEventListener("click", event => {
   const target = event.target.closest("button"); if (!target) return;
+  if (target.dataset.removeAttachment !== undefined) {
+    const index = Number(target.dataset.removeAttachment), item = currentAttachments[index];
+    if (item?.previewUrl) URL.revokeObjectURL(item.previewUrl);
+    currentAttachments.splice(index, 1); renderAttachments(); return;
+  }
   if (target.dataset.view) showView(target.dataset.view);
   if (target.dataset.go) showView(target.dataset.go);
   if (target.dataset.open) openCanvas(target.dataset.open);
@@ -215,6 +267,10 @@ document.getElementById("newCaseBtn").addEventListener("click", () => document.g
 document.getElementById("newCaseForm").addEventListener("submit", addCase);
 document.getElementById("dialogDemoBtn").addEventListener("click", () => currentCase && openDemo(currentCase.id));
 document.getElementById("runDemoBtn").addEventListener("click", runDemo);
+document.getElementById("cameraInput").addEventListener("change", event => { addAttachments(event.target.files); event.target.value = ""; });
+document.getElementById("fileInput").addEventListener("change", event => { addAttachments(event.target.files); event.target.value = ""; });
+document.getElementById("copyPromptBtn").addEventListener("click", copyPreparedPrompt);
+document.getElementById("sharePromptBtn").addEventListener("click", sharePreparedPrompt);
 document.getElementById("exportBtn").addEventListener("click", exportData);
 document.getElementById("searchInput").addEventListener("input", renderCases);
 document.getElementById("areaFilter").addEventListener("change", renderCases);
