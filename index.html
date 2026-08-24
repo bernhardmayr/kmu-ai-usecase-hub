@@ -136,12 +136,22 @@
     </dialog>
 
     <dialog id="demoDialog" class="modal demo-modal">
-      <div class="modal-head"><div><span class="section-kicker">INTERAKTIVE DEMO</span><h2 id="demoTitle">Demo</h2></div><button class="close-btn" data-close="demoDialog" aria-label="Schließen">×</button></div>
+      <div class="modal-head"><div><span class="section-kicker">MIT CHATGPT AUSFÜHREN</span><h2 id="demoTitle">Demo</h2></div><button class="close-btn" data-close="demoDialog" aria-label="Schließen">×</button></div>
       <div class="demo-workbench">
-        <section><label class="input-label" for="demoInput">Beispieleingabe</label><textarea id="demoInput"></textarea><button id="runDemoBtn" class="primary-btn run-btn"><span>▶</span> Beispiel ausführen</button></section>
-        <section class="result-side"><div class="result-head"><span>KI-Ergebnis</span><span id="confidenceBadge" class="confidence">Bereit</span></div><div id="demoResult" class="demo-result empty-result">Starte die Demo, um das Ergebnis zu sehen.</div><div id="processSteps" class="process-steps"></div></section>
+        <section>
+          <label class="input-label" for="demoInput">Eingabe für ChatGPT</label>
+          <textarea id="demoInput"></textarea>
+          <div class="attachment-actions">
+            <label class="attachment-btn" for="cameraInput"><span>▣</span> Foto aufnehmen<input id="cameraInput" type="file" accept="image/*" capture="environment" /></label>
+            <label class="attachment-btn" for="fileInput"><span>＋</span> Datei auswählen<input id="fileInput" type="file" accept="image/*,.pdf,.txt,.csv,.doc,.docx,.xls,.xlsx" multiple /></label>
+          </div>
+          <div id="attachmentList" class="attachment-list" aria-live="polite"></div>
+          <p class="privacy-note">Dateien bleiben zunächst auf diesem Gerät. Bilder, PDFs und Office-Dateien hängst du im geöffneten Chat über <strong>＋</strong> an.</p>
+          <button id="runDemoBtn" class="primary-btn run-btn"><span>↗</span> An ChatGPT übergeben</button>
+        </section>
+        <section class="result-side"><div class="result-head"><span>Übergabe</span><span id="confidenceBadge" class="confidence">Bereit</span></div><div id="demoResult" class="demo-result empty-result">Ergänze bei Bedarf Text, Foto oder Datei und öffne anschließend ChatGPT.</div><div id="processSteps" class="process-steps"></div></section>
       </div>
-      <div id="feedbackBar" class="feedback-bar hidden"><span>War das Ergebnis hilfreich?</span><button data-feedback="yes">✓ Ja</button><button data-feedback="no">× Nein</button></div>
+      <div id="feedbackBar" class="feedback-bar hidden"><span>Prompt wurde vorbereitet.</span><button id="copyPromptBtn">Prompt kopieren</button><button id="sharePromptBtn">Teilen</button></div>
     </dialog>
 
     <div id="toast" class="toast" role="status"></div>
