@@ -160,6 +160,19 @@ button { cursor: pointer; }
 .input-label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 11px; font-weight: 700; }
 #demoInput { width: 100%; min-height: 250px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; outline: 0; resize: vertical; line-height: 1.5; }
 .run-btn { width: 100%; margin-top: 10px; }
+.attachment-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.attachment-btn { min-height: 42px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; color: #42506a; background: white; font-size: 11px; font-weight: 750; display: flex; align-items: center; justify-content: center; gap: 7px; cursor: pointer; }
+.attachment-btn:active { background: var(--blue-soft); border-color: #b8c9f5; }
+.attachment-btn input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.attachment-list { margin-top: 9px; display: grid; gap: 7px; }
+.attachment-item { padding: 8px 9px; border: 1px solid var(--line); border-radius: 9px; background: #f8fafc; display: grid; grid-template-columns: 42px minmax(0,1fr) 28px; gap: 9px; align-items: center; }
+.attachment-thumb { width: 42px; height: 42px; border-radius: 7px; object-fit: cover; background: #e9eef5; display: grid; place-items: center; color: var(--muted); font-size: 10px; font-weight: 800; }
+.attachment-meta { min-width: 0; }
+.attachment-meta strong, .attachment-meta small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attachment-meta strong { color: #34425d; font-size: 10px; }
+.attachment-meta small { margin-top: 2px; color: var(--muted); font-size: 9px; }
+.remove-attachment { width: 28px; height: 28px; border: 0; border-radius: 50%; color: var(--muted); background: #e9eef5; font-size: 16px; }
+.privacy-note { margin: 8px 1px 0; color: var(--muted); font-size: 9px; line-height: 1.45; }
 .result-side { min-height: 300px; padding: 15px; border: 1px solid var(--line); border-radius: 13px; background: #f8fafc; }
 .result-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 800; }
 .confidence { padding: 4px 8px; border-radius: 20px; color: var(--muted); background: #ebeff4; font-size: 9px; }
@@ -217,6 +230,7 @@ button { cursor: pointer; }
   .case-form label, .full { grid-column: 1; }
   .demo-workbench { grid-template-columns: 1fr; padding: 15px; }
   #demoInput { min-height: 170px; }
+  .attachment-actions { grid-template-columns: 1fr; }
   .modal-head { padding: 18px 16px 14px; }
   .modal-actions { padding: 12px 16px 18px; }
   .mobile-nav { position: fixed; z-index: 15; left: 0; right: 0; bottom: 0; padding: 7px 7px calc(7px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(12px); display: grid; grid-template-columns: repeat(4,1fr); }
